@@ -23,6 +23,8 @@
 
 ZIPファイルを解答し，「KURAGE_SemiAutoDungeon.js」をRPGツクールMVのプロジェクトのpluginフォルダへ，「__SwapMap.bat」をdataフォルダに保存してください。
 
+（__SwapMap.batはWindowsを使用している方のみ利用可能です。）
+
 RPGツクールMVを起動し，プラグインを読み込んでください（下図）。
 ![alt text](https://github.com/kurageya0307/SemiAutoDungeon/blob/pictures/PLUGIN.png)
 
