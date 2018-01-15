@@ -19,15 +19,18 @@
 このページの上部にある緑色のボタンをクリックしZIPファイルをダウンロードしてください。
 ZIPファイルを解答し，「KURAGE_SemiAutoDungeon.js」をRPGツクールMVのプロジェクトのpluginフォルダへ，「__SwapMap.bat」をdataフォルダに保存してください。
 RPGツクールMVを起動し，プラグインを読み込んでください（下図）。
+![alt text](https://github.com/kurageya0307/SemiAutoDungeon/blob/pictures/PLUGIN.png)
 
 この時点でプラグインパラメータの設定は特に必要ありません。
 
 ## 2.「素材マップ」「ダンジョンテンプレマップ」の作成
 「素材マップ」「ダンジョンテンプレマップ」の2種類のマップを作成します。
 素材マップとダンジョンテンプレマップは，素材マップが親・ダンジョンテンプレマップが子となるようにマップツリーを構成してください（下図）。
+![alt text]()
 
 ### 素材マップ
 ダンジョンを構成する要素を並べた素材マップを作成します（下図）。
+![alt text](https://github.com/kurageya0307/SemiAutoDungeon/blob/pictures/SOZAI.png)
 
 素材マップは以下の規格のとおり素材を配置してください。
 
@@ -43,6 +46,7 @@ Y座標　：　素材内容
 
 ### ダンジョンテンプレマップ
 通路のみで構成されるダンジョンテンプレマップを作成します（下図）。
+![alt text](https://github.com/kurageya0307/SemiAutoDungeon/blob/pictures/TEMPLATE.png)
 
 上図にあるとおり，ダンジョンテンプレマップは以下の規格に則って作成してください。
 1. 通路の幅は3マス以上
@@ -51,14 +55,17 @@ Y座標　：　素材内容
 
 ### プラグインパラメータの設定
 作成した素材マップのマップIDをプラグインパラメータ「素材マップID」に入力してください（下図）。
+![alt text](https://github.com/kurageya0307/SemiAutoDungeon/blob/pictures/PLUGIN_PARAMETER.png)
 
 素材マップはコンマ区切りで複数入力することができます。
 
 ## 3.テストプレイ
 どこでもよいのでマップにイベントを用意し，プラグインコマンド「KURAGE_SemiAutoDungeon」を呼び出してください（下図）。
+![alt text](https://github.com/kurageya0307/SemiAutoDungeon/blob/pictures/CALL_COMMAND.png)
 
 テストプレイを実行し，F8キーを押してコンソール画面を開いてください。
 プラグインコマンドを呼び出すとマップの生成が始まり，途中経過をコンソール画面に出力します（下図）。
+![alt text](https://github.com/kurageya0307/SemiAutoDungeon/blob/pictures/CONSOLE.png)
 
 ## 4.ツクールMVの一時終了
 一度，ツクールMVを終了します。
@@ -78,6 +85,7 @@ Map***.jsonを置き換えたならば，再度RPGツクールMVを起動しま�
 # その他の設定
 ダンジョンテンプレマップのリージョン設定にてリージョンID「1」を配置すると，配置されたリージョン内に移動不可のオブジェクトを置かないようにできます。
 これは主にダンジョンの出入り口付近に配置し，「別のマップから移動してきたあと移動不可オブジェクトの上に乗ってしまい動けなくなってしまう」という現象を避けるために使用します（下図）。
+![alt text](https://github.com/kurageya0307/SemiAutoDungeon/blob/pictures/REGION.png)
 
 リージョンIDはプラグインパラメータによって変更することもできます。
 
