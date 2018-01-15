@@ -2,6 +2,8 @@
 
 「KURAGE_SemiAutoDungeon.js」はめんどくさいダンジョン作成を半自動化し，短時間で大量の自然なダンジョンを作ってくれます。
 
+![alt text](https://github.com/kurageya0307/SemiAutoDungeon/blob/pictures/BEFORE_AFTER.png)
+
 これを使うことで今までダンジョン作成に費やしていた時間を短縮でき，その分システムやシナリオに力を入れることができますよ！
 
 # 使い方
