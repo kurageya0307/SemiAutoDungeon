@@ -1083,7 +1083,6 @@ PERFORMANCE OF THIS SOFTWARE.
       if (line.match(/<TREE_DENSITY_Y:[ ]*(\d+)>/i))   { option["TREE_DENSITY_Y"]  = parseInt(RegExp.$1);}
       if (line.match(/<TREE_SIZE:[ ]*(\d+)>/i))        { option["TREE_SIZE"] = parseInt(RegExp.$1);}
     }
-    console.log(option)
     return option;
   };
 
@@ -1889,7 +1888,7 @@ PERFORMANCE OF THIS SOFTWARE.
   //
   function ExtendXPassages(map2d) {
     for(let i=0; i<x_buffer.length; i++) {
-      var j = x_buffer[i].length - 1;
+      var j = Math.min(x_buffer[i].length - 1, X_PROBABILITY_MAP.length-1);
       var rand = $.random.nextInt(0, 99);
       for(var k=0; k<X_PROBABILITY_MAP[j].length; k++) {
         rand -= X_PROBABILITY_MAP[j][k];
@@ -1965,7 +1964,7 @@ PERFORMANCE OF THIS SOFTWARE.
   //
   function ExtendYPassages(map2d) {
     for(let i=0; i<y_buffer.length; i++) {
-      var j = y_buffer[i].length - 1;
+      var j = Math.min(y_buffer[i].length - 1, Y_PROBABILITY_MAP.length - 1);
       var rand = $.random.nextInt(0, 99);
       for(var k=0; k<Y_PROBABILITY_MAP[j].length; k++) {
         rand -= Y_PROBABILITY_MAP[j][k];
