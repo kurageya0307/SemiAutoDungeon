@@ -73,7 +73,8 @@
  * 　6　　　：　1x1サイズの壁の飾り（例：「壁の苔」など）
  * 　7～8 　：　1x2サイズの壁の飾り（例：「壁のツタ」など）
  *   9～11　：　崖や縁，2×2サイズの木を規格通り配置してください。
- *   　　　　　 配置図はHOGEHOGHOEを参考にしてください。
+ *   　　　　　 配置図は以下を参考にしてください。
+ *　　　　　　　https://github.com/kurageya0307/SemiAutoDungeon/blob/pictures/SOZAI_FIELD.png
  *
  * テストプレイを行い，どこかのマップにて以下のプラグインコマンドを実行してください。
  * 「KURAGE_SemiAutoDungeon」
