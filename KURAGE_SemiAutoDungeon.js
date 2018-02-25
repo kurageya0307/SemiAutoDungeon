@@ -191,8 +191,14 @@ KURAGE.SemiAutoDungeon = {};
   //
   $.params = PluginManager.parameters('KURAGE_SemiAutoDungeon');
   $.dungeon_parent_ids = $.params['ダンジョン素材マップID'].split(",").map(function(v) {return Number(v);} );
+  if($.dungeon_parent_ids.length===1 && $.dungeon_parent_ids[0]===0){
+    $.dungeon_parent_ids = [];
+  }
 //console.log($.dungeon_parent_ids)
   $.field_parent_ids = $.params['屋外マップ素材マップID'].split(",").map(function(v) {return Number(v);} );
+  if($.field_parent_ids.length===1 && $.field_parent_ids[0]===0){
+    $.field_parent_ids = [];
+  }
 //console.log($.field_parent_ids)
   
   $.random = null;
@@ -1559,7 +1565,7 @@ PERFORMANCE OF THIS SOFTWARE.
                [NO_MASK,NO_MASK,NO_MASK,NO_MASK,     -1,NO_MASK,NO_MASK],
                [NO_MASK,NO_MASK,NO_MASK,NO_MASK,     -1,NO_MASK,NO_MASK],
                [NO_MASK,NO_MASK,NO_MASK,NO_MASK,     -3,NO_MASK,NO_MASK],
-               [     -1,     -1,     -1,     -3,     -3,NO_MASK,NO_MASK],
+               [     -1,     -1,     -3,     -3,     -3,NO_MASK,NO_MASK],
                [NO_MASK,NO_MASK,NO_MASK,NO_MASK,NO_MASK,NO_MASK,NO_MASK],
                [NO_MASK,NO_MASK,NO_MASK,NO_MASK,NO_MASK,NO_MASK,NO_MASK], ],
       mask_c:[ [NO_MASK,NO_MASK,NO_MASK,NO_MASK,     -1,NO_MASK,NO_MASK],
@@ -1904,7 +1910,7 @@ PERFORMANCE OF THIS SOFTWARE.
       //console.log(x_array.lengths)
     
       if(x_buffer[i].length < 4) {
-        x_array.lengths[0] += 1;
+        x_array.lengths[0] = x_buffer[i].length;
       }else{
         var min = 1;
         var max = x_array.lengths.length - 2;
