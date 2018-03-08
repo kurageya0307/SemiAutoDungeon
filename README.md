@@ -204,6 +204,7 @@ terraceの場合の例を下図に示します。
 
 <field_type: mix>では，基本を段々畑（北が高く，南が低い）とし，その上でランダムな高低差を追加します。
 mixの場合の例を下図に示します。
+<font color="Red"><field_type: mix>は若干ながら不自然な形が発生することがあります。該当部分はマップ生成後に修正していただければと思います。</font>
 
 ![alt text](https://github.com/kurageya0307/SemiAutoDungeon/blob/pictures/MIX.png)
 
