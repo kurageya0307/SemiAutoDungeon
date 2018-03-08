@@ -199,10 +199,12 @@ Y座標　：　素材内容
 特別な屋外マップを作成可能です。
 <field_type: terrace>では，地形が段々畑状になり北（画面上）に向かうほど高く，南（画面下）に向かうほど低い形なります。
 terraceの場合の例を下図に示します。
+
 ![alt text](https://github.com/kurageya0307/SemiAutoDungeon/blob/pictures/TERRACE.png)
 
 <field_type: mix>では，基本を段々畑（北が高く，南が低い）とし，その上でランダムな高低差を追加します。
 mixの場合の例を下図に示します。
+
 ![alt text](https://github.com/kurageya0307/SemiAutoDungeon/blob/pictures/MIX.png)
 
 ### MAX_DEPTH
