@@ -2,8 +2,8 @@
 // KURAGE_SemiAutoDungeon.js
 // Author    : KURAGE
 // Date      : 2018/01/11
-// Update    : 2018/02/25
-// Version   : v1.2.1
+// Update    : 2018/03/08
+// Version   : v1.2.2
 //=============================================================================
 
 //=============================================================================
@@ -96,6 +96,15 @@
  * <seed: 数字>
  * 　乱数のシード値を指定します。デフォルトではマップのマップIDがシード値になっています。
  *
+ * <field_type系>
+ *  <field_type: shield>（デフォルト）
+ *  <field_type: terrace>
+ *  <field_type: mix>
+ * 　（屋外マップ限定）屋外マップの地形を指定します。
+ * 　shieldでは地形が楯状地のようになり，等高線を引いた地図のように高い所・低い所の入り混じった形になります。
+ * 　terraceでは地形が段々畑のようになり，北（画面上）に向かうほど高いようになります。
+ * 　mixは基本を段々畑としshieldのようなランダムな高低差が追加された地形になります。
+ *
  * <max_depth: 数字>　デフォルト値　4
  * 　（屋外マップ限定）高低差の最大値を指定します。
  *
@@ -111,6 +120,10 @@
  * <tree_size: 数字>　デフォルト値　25
  * 　（屋外マップ限定）一つ一つの木々の集まりの大きさを指定します。
  * 　この数字が大きいほどある木々集合のサイズが大きくなります。
+ *
+ * <dungeon_symmetry: on>　デフォルト値　off
+ * 　（ダンジョンマップ限定）ダンジョンを左右対称にします。
+ * 　砦や塔など人工物のダンジョン作成時にお使いください。
  *
  * <add系>
  *  <add_all: off>
@@ -1035,13 +1048,21 @@ PERFORMANCE OF THIS SOFTWARE.
     option["LIMIT_WALL"]  = 4;
     option["LIMIT_TREE"]  = 5;
 
-    option["MAX_DEPTH"] = 4;
-    option["RELIEF_X"]  = 20;
-    option["RELIEF_Y"]  = 20;
+    option["SHIELD_MAX_DEPTH"]  = 4;
+    option["SHIELD_RELIEF_X"]   = 20;
+    option["SHIELD_RELIEF_Y"]   = 20;
+    option["TERRACE_MAX_DEPTH"] = 4;
+    option["TERRACE_RELIEF_X"]  = 10;
+    option["TERRACE_RELIEF_Y"]  = 10;
 
     option["TREE_DENSITY_X"]  = 6;
     option["TREE_DENSITY_Y"]  = 6;
     option["TREE_SIZE"]       = 25;
+
+    option["DUNGEON_SYMMETRY"] = false;
+
+    option["FIELD_TYPE"] = "shield";
+    option["TERRACE_DEFORM"] = 8;
 
     let notedata = note.split(/[\r\n]+/);
     for (let i=0; i<notedata.length; i++) {
@@ -1080,15 +1101,46 @@ PERFORMANCE OF THIS SOFTWARE.
       if (line.match(/<LIMIT_WALL:[ ]*(\d+)>/i))   { option["LIMIT_WALL"]  = parseInt(RegExp.$1);}
       if (line.match(/<LIMIT_TREE:[ ]*(\d+)>/i))   { option["LIMIT_TREE"]  = parseInt(RegExp.$1);}
 
-      if (line.match(/<RELIEF:[ ]*(\d+)>/i))     { option["RELIEF_X"]  = parseInt(RegExp.$1); option["RELIEF_Y"]  = parseInt(RegExp.$1);}
-      if (line.match(/<RELIEF_X:[ ]*(\d+)>/i))   { option["RELIEF_X"]  = parseInt(RegExp.$1);}
-      if (line.match(/<RELIEF_Y:[ ]*(\d+)>/i))   { option["RELIEF_Y"]  = parseInt(RegExp.$1);}
-      if (line.match(/<MAX_DEPTH:[ ]*(\d+)>/i))  { option["MAX_DEPTH"] = parseInt(RegExp.$1);}
+      if (line.match(/<RELIEF:[ ]*(\d+)>/i)){
+        option["SHIELD_RELIEF_X"]  = parseInt(RegExp.$1);
+        option["SHIELD_RELIEF_Y"]  = parseInt(RegExp.$1);
+        option["TERRACE_RELIEF_X"] = parseInt(RegExp.$1);
+        option["TERRACE_RELIEF_Y"] = parseInt(RegExp.$1);
+      }
+      if (line.match(/<RELIEF_X:[ ]*(\d+)>/i)){
+        option["SHIELD_RELIEF_X"]  = parseInt(RegExp.$1);
+        option["TERRACE_RELIEF_X"] = parseInt(RegExp.$1);
+      }
+      if (line.match(/<RELIEF_Y:[ ]*(\d+)>/i)){
+        option["SHIELD_RELIEF_Y"]  = parseInt(RegExp.$1);
+        option["TERRACE_RELIEF_Y"] = parseInt(RegExp.$1);
+      }
+      if (line.match(/<SHIELD_RELIEF:[ ]*(\d+)>/i)){
+        option["SHIELD_RELIEF_X"]  = parseInt(RegExp.$1);
+        option["SHIELD_RELIEF_Y"]  = parseInt(RegExp.$1);
+      }
+      if (line.match(/<SHIELD_RELIEF_X:[ ]*(\d+)>/i)){option["SHIELD_RELIEF_X"]  = parseInt(RegExp.$1);}
+      if (line.match(/<SHIELD_RELIEF_Y:[ ]*(\d+)>/i)){option["SHIELD_RELIEF_Y"]  = parseInt(RegExp.$1);}
+      if (line.match(/<TERRACE_RELIEF:[ ]*(\d+)>/i)){
+        option["TERRACE_RELIEF_X"] = parseInt(RegExp.$1);
+        option["TERRACE_RELIEF_Y"] = parseInt(RegExp.$1);
+      }
+      if (line.match(/<TERRACE_RELIEF_X:[ ]*(\d+)>/i)){option["TERRACE_RELIEF_X"] = parseInt(RegExp.$1);}
+      if (line.match(/<TERRACE_RELIEF_Y:[ ]*(\d+)>/i)){option["TERRACE_RELIEF_Y"] = parseInt(RegExp.$1);}
+      if (line.match(/<MAX_DEPTH:[ ]*(\d+)>/i))  { option["SHIELD_MAX_DEPTH"] = option["TERRACE_MAX_DEPTH"] = parseInt(RegExp.$1);}
+      if (line.match(/<SHIELD_MAX_DEPTH:[ ]*(\d+)>/i))  { option["SHIELD_MAX_DEPTH"] = parseInt(RegExp.$1);}
+      if (line.match(/<TERRACE_MAX_DEPTH:[ ]*(\d+)>/i)) { option["TERRACE_MAX_DEPTH"] = parseInt(RegExp.$1);}
 
       if (line.match(/<TREE_DENSITY:[ ]*(\d+)>/i))     { option["TREE_DENSITY_X"]  = parseInt(RegExp.$1); option["TREE_DENSITY_Y"]  = parseInt(RegExp.$1);}
       if (line.match(/<TREE_DENSITY_X:[ ]*(\d+)>/i))   { option["TREE_DENSITY_X"]  = parseInt(RegExp.$1);}
       if (line.match(/<TREE_DENSITY_Y:[ ]*(\d+)>/i))   { option["TREE_DENSITY_Y"]  = parseInt(RegExp.$1);}
       if (line.match(/<TREE_SIZE:[ ]*(\d+)>/i))        { option["TREE_SIZE"] = parseInt(RegExp.$1);}
+
+      if (line.match(/<DUNGEON_SYMMETRY:[ ]*(?:ON|TRUE)>/i))  { option["DUNGEON_SYMMETRY"]  = true;}
+
+      if (line.match(/<FIELD_TYPE:[ ]*(?:TERRACE)>/i)) { option["FIELD_TYPE"]  = "terrace";}
+      if (line.match(/<FIELD_TYPE:[ ]*(?:MIX)>/i))     { option["FIELD_TYPE"]  = "mix";}
+      if (line.match(/<TERRACE_DEFORM:[ ]*(\d+)>/i))   { option["TERRACE_DEFORM"] = parseInt(RegExp.$1);}
     }
     return option;
   };
@@ -1210,7 +1262,7 @@ PERFORMANCE OF THIS SOFTWARE.
       ExtendYPassages(map2d);
       MakeWallAndCeil(map2d);
 
-      let shadow_map = MakeShadow(map2d);
+      let shadow_map = MakeShadow(map2d, option);
  
       let grass_map = MakeGrass(map2d, option);
       let walkable_object_map = MakeWalkableObject(map2d, option);
@@ -2101,7 +2153,7 @@ PERFORMANCE OF THIS SOFTWARE.
     //console.log(fuga);
   };
  
-  function MakeShadow(map2d) {
+  function MakeShadow(map2d, option) {
     let shadow_map = [];
     for(let y=0; y<target_data_map.height; y++) {
       shadow_map[y] = [];
@@ -2111,7 +2163,12 @@ PERFORMANCE OF THIS SOFTWARE.
     }
     for(let y=0; y<target_data_map.height; y++) {
       for(let x=target_data_map.width-1; x>=1; x--) {
-        if( (map2d[y][x]==-1 || map2d[y][x]==1) && (map2d[y][x-1]==-2 || map2d[y][x-1]==-3) ){
+        let xx = (option["DUNGEON_SYMMETRY"] && x >= target_data_map.width/2)  ? target_data_map.width-1-x  : x;
+        let delta_x = (option["DUNGEON_SYMMETRY"] && x >= target_data_map.width/2)  ? 1 : -1;
+        if(x==target_data_map.width/2){
+          delta_x = 0;
+        }
+        if( (map2d[y][xx]==-1 || map2d[y][xx]==1) && (map2d[y][xx+delta_x]==-2 || map2d[y][xx+delta_x]==-3) ){
           shadow_map[y][x] = 1;
         }
       }
@@ -2463,11 +2520,12 @@ PERFORMANCE OF THIS SOFTWARE.
   function CreateFloorWallAndCeil(map2d, grass_map, walkable_object_map, unwalkable_1x1_object_map, unwalkable_1x2_object_map, wallpaper_1x1_map, wallpaper_1x2_map, shadow_map, option) {
     for(let y=0; y<target_data_map.height; y++) {
       for(let x=0; x<target_data_map.width; x++) {
-        if(map2d[y][x] == -3) {
+        let xx = (option["DUNGEON_SYMMETRY"] && x >= target_data_map.width/2)  ? target_data_map.width-1-x  : x;
+        if(map2d[y][xx] == -3) {
           $.applySupponCTI([ 'auto', 'abc', '2', '0', '1', '1', String(x), String(y) ], base_data_map);
-        }else if(map2d[y][x] == -2) {
+        }else if(map2d[y][xx] == -2) {
           $.applySupponCTI([ 'auto', 'abc', '1', '0', '1', '1', String(x), String(y) ], base_data_map);
-        }else if(map2d[y][x] == -1) {
+        }else if( (map2d[y][xx] == -1) || (map2d[y][xx] == 1) ) {
           $.applySupponCTI([ 'auto', 'abc', '0', '0', '1', '1', String(x), String(y) ], base_data_map);
         }
       }
@@ -2477,8 +2535,9 @@ PERFORMANCE OF THIS SOFTWARE.
       if(grass_tiles_num!=0){
         for(let y=0; y<target_data_map.height; y++) {
           for(let x=0; x<target_data_map.width; x++) {
-            if(grass_map[y][x] != 0) {
-              $.applySupponCTI([ 'autoadd', 'abc', String(grass_map[y][x]-1), '1', '1', '1', String(x), String(y) ], base_data_map );
+            let xx = (option["DUNGEON_SYMMETRY"] && x >= target_data_map.width/2)  ? target_data_map.width-1-x  : x;
+            if(grass_map[y][xx] != 0) {
+              $.applySupponCTI([ 'autoadd', 'abc', String(grass_map[y][xx]-1), '1', '1', '1', String(x), String(y) ], base_data_map );
             }
           }
         }
@@ -2489,16 +2548,18 @@ PERFORMANCE OF THIS SOFTWARE.
       if(wallpaper_1x1_tiles_num!=0 || wallpaper_1x2_tiles_num!=0){
         for(let y=target_data_map.height-1; y>=0; y--) {
           for(let x=0; x<target_data_map.width; x++) {
-            if(wallpaper_1x1_map[y][x] != 0) {
-              $.applySupponCTI([ 'add', 'abc', String(wallpaper_1x1_map[y][x]-1), '6', '1', '1', String(x), String(y) ], base_data_map);
+            let xx = (option["DUNGEON_SYMMETRY"] && x >= target_data_map.width/2)  ? target_data_map.width-1-x  : x;
+            if(wallpaper_1x1_map[y][xx] != 0) {
+              $.applySupponCTI([ 'add', 'abc', String(wallpaper_1x1_map[y][xx]-1), '6', '1', '1', String(x), String(y) ], base_data_map);
             }
           }
         }
  
         for(let y=target_data_map.height-1; y>=0; y--) {
           for(let x=0; x<target_data_map.width; x++) {
-            if(wallpaper_1x2_map[y][x] != 0) {
-              $.applySupponCTI([ 'add', 'abc', String(wallpaper_1x2_map[y][x]-1), '7', '1', '2', String(x), String(y) ] , base_data_map);
+            let xx = (option["DUNGEON_SYMMETRY"] && x >= target_data_map.width/2)  ? target_data_map.width-1-x  : x;
+            if(wallpaper_1x2_map[y][xx] != 0) {
+              $.applySupponCTI([ 'add', 'abc', String(wallpaper_1x2_map[y][xx]-1), '7', '1', '2', String(x), String(y) ] , base_data_map);
             }
           }
         }
@@ -2508,8 +2569,9 @@ PERFORMANCE OF THIS SOFTWARE.
     if(option["ADD_W_OBJ"]) {
       for(let y=0; y<target_data_map.height; y++) {
         for(let x=0; x<target_data_map.width; x++) {
-          if(walkable_object_map[y][x] != 0) {
-            $.applySupponCTI(['add', 'abc', String(walkable_object_map[y][x]-1), '2', '1', '1', String(x), String(y)], base_data_map); 
+          let xx = (option["DUNGEON_SYMMETRY"] && x >= target_data_map.width/2)  ? target_data_map.width-1-x  : x;
+          if(walkable_object_map[y][xx] != 0) {
+            $.applySupponCTI(['add', 'abc', String(walkable_object_map[y][xx]-1), '2', '1', '1', String(x), String(y)], base_data_map); 
           }
         }
       }
@@ -2518,15 +2580,17 @@ PERFORMANCE OF THIS SOFTWARE.
     if(option["ADD_U_OBJ"]) {
       for(let y=0; y<target_data_map.height; y++) {
         for(let x=0; x<target_data_map.width; x++) {
-          if(unwalkable_1x1_object_map[y][x] != 0) {
-            $.applySupponCTI([ 'add', 'abc', String(unwalkable_1x1_object_map[y][x]-1), '3', '1', '1', String(x), String(y) ], base_data_map);
+          let xx = (option["DUNGEON_SYMMETRY"] && x >= target_data_map.width/2)  ? target_data_map.width-1-x  : x;
+          if(unwalkable_1x1_object_map[y][xx] != 0) {
+            $.applySupponCTI([ 'add', 'abc', String(unwalkable_1x1_object_map[y][xx]-1), '3', '1', '1', String(x), String(y) ], base_data_map);
           }
         }
       }
       for(let y=target_data_map.height-1; y>=0; y--) {
         for(let x=0; x<target_data_map.width; x++) {
-          if(unwalkable_1x2_object_map[y][x] != 0) {
-            $.applySupponCTI([ 'add', 'abc', String(unwalkable_1x2_object_map[y][x]-1), '4', '1', '2', String(x), String(y) ], base_data_map);
+          let xx = (option["DUNGEON_SYMMETRY"] && x >= target_data_map.width/2)  ? target_data_map.width-1-x  : x;
+          if(unwalkable_1x2_object_map[y][xx] != 0) {
+            $.applySupponCTI([ 'add', 'abc', String(unwalkable_1x2_object_map[y][xx]-1), '4', '1', '2', String(x), String(y) ], base_data_map);
           }
         }
       }
@@ -2576,7 +2640,14 @@ PERFORMANCE OF THIS SOFTWARE.
 
       PrepareTiles();
  
-      let depth_map = MakeDepthMap(target_data_map.width, target_data_map.height, option);
+      let depth_map;
+      if(option["FIELD_TYPE"]==="shield"){
+        depth_map = MakeShieldDepthMap(target_data_map.width, target_data_map.height, option);
+      }else if(option["FIELD_TYPE"]==="terrace"){
+        depth_map = MakeTerraceDepthMap(target_data_map.width, target_data_map.height, option);
+      }else if(option["FIELD_TYPE"]==="mix"){
+        depth_map = MakeMixDepthMap(target_data_map.width, target_data_map.height, option);
+      }
       let cliff_and_border_map = MakeCliffAndBorderMap(depth_map);
 
       let tree_map = MakeTreeMap(target_data_map.width, target_data_map.height, cliff_and_border_map, option);
@@ -2610,16 +2681,16 @@ PERFORMANCE OF THIS SOFTWARE.
     }
   };
  
-  function MakeDepthMap(width, height, option) {
+  function MakeShieldDepthMap(width, height, option) {
     var depth_map = [];
     for (var y = 0; y < height; y++) {
       depth_map[y] = [];
     }
     
-    var x_relief = option["RELIEF_X"];
-    var y_relief = option["RELIEF_Y"];
+    var x_relief = option["SHIELD_RELIEF_X"];
+    var y_relief = option["SHIELD_RELIEF_Y"];
     
-    var max_depth = option["MAX_DEPTH"];
+    var max_depth = option["SHIELD_MAX_DEPTH"];
     
     var max = 0;
     var min = 0;
@@ -2687,6 +2758,269 @@ PERFORMANCE OF THIS SOFTWARE.
     //StorageManager.saveToLocalDataFilePlain("piyo.csv", hoge) 
  
     return depth_map;
+  };
+
+  function MakeTerraceDepthMap(width, height, option) {
+    var depth_map = [];
+    var deform_map = [];
+    let terrace_length = Math.floor(height/option["TERRACE_MAX_DEPTH"]);
+    for (var y = 0; y < height; y++) {
+      depth_map[y] = [];
+      deform_map[y] = [];
+      for (var x = 0; x < width; x++) {
+        depth_map[y][x] = option["TERRACE_MAX_DEPTH"] - Math.floor( y/terrace_length );
+      }
+    };
+    
+    var x_relief = option["TERRACE_RELIEF_X"];
+    var y_relief = option["TERRACE_RELIEF_Y"];
+    
+    var max_deform = option["TERRACE_DEFORM"];
+    
+    var max = 0;
+    var min = 0;
+    for (var y = 0; y < height; y++) {
+      for (var x = 0; x < width; x++) {
+        var value = noise.perlin2(x / x_relief, y / y_relief);
+        max = Math.max(value, max);
+        min = Math.min(value, min);
+        deform_map[y][x] = value;
+      }
+    }
+    var normalize_factor = max_deform / (max - min);
+    for (var y = 0; y < height; y++) {
+      for (var x = 0; x < width; x++) {
+        deform_map[y][x] -= min;
+        deform_map[y][x] *= normalize_factor;
+        deform_map[y][x] = Math.floor(deform_map[y][x]);
+        deform_map[y][x] = Math.max(deform_map[y][x], 0);
+        deform_map[y][x] = Math.min(max_deform-1, deform_map[y][x]);
+      }
+    }
+
+    for (var y = terrace_length-1; y < height-terrace_length; y+=terrace_length) {
+      for (var x = 0; x < width; x++) {
+        for(let i=0; i<deform_map[y][x]; i++){
+          if(y-i<0) continue;
+          depth_map[y-i][x] -= 1;
+        }
+      }
+    }
+    
+    // Modify litte x geometry such as "1 2 1"
+    //                                    ~
+    for (var y = 0; y < height; y++) {
+      for (var x = 0; x < width-1; x++) {
+        let a = Math.abs(depth_map[y][x  ] - depth_map[y][x]);
+        let b = Math.abs(depth_map[y][x+1] - depth_map[y][x]);
+        let c = Math.abs(depth_map[y][x+2] - depth_map[y][x]);
+        if( a===0 && b!==0 && c===0 ){
+          depth_map[y][x  ] = depth_map[y][x];
+          depth_map[y][x+1] = depth_map[y][x];
+          depth_map[y][x+2] = depth_map[y][x];
+        }
+      }
+    }
+    
+    //var hoge = "";
+    //for (var y = 0; y < height; y++) {
+    //  for (var x = 0; x < width; x++) {
+    //    hoge += String(depth_map[y][x]) + ",";
+    //  }
+    //  hoge += "\n";
+    //}
+    //hoge += "-----------------------------------------------------------------------------------------\n";
+    //for (var y = 0; y < height; y++) {
+    //  for (var x = 0; x < width; x++) {
+    //    hoge += String(deform_map[y][x]) + ",";
+    //  }
+    //  hoge += "\n";
+    //}
+    //hoge += "-----------------------------------------------------------------------------------------\n";
+    //for (var y = terrace_length-1; y < height; y+=terrace_length) {
+    //  for (var x = 0; x < width; x++) {
+    //    hoge += String(deform_map[y][x]) + ",";
+    //  }
+    //  hoge += "\n";
+    //}
+    //console.log(hoge);
+    //StorageManager.saveToLocalDataFilePlain("piyo.csv", hoge) 
+ 
+    return depth_map;
+  };
+
+  function MakeMixDepthMap(width, height, option) {
+    option["SHIELD_MAX_DEPTH"] = 3;
+    let shield_depth_map  = MakeShieldDepthMap(width, height, option);
+    // Change shield_depth_map from [0, 1, 2] to [-1, 0, 1]
+    for (var y = 0; y < height; y++) {
+      for (var x = 0; x < width; x++) {
+        shield_depth_map[y][x] -= 1;
+      }
+    }
+    let terrace_depth_map = MakeTerraceDepthMap(width, height, option);
+
+    //var hoge = "";
+    //for (var y = 0; y < height; y++) {
+    //  for (var x = 0; x < width; x++) {
+    //    hoge += String(shield_depth_map[y][x]) + ",";
+    //  }
+    //  hoge += "\n";
+    //}
+    //hoge += "-----------------------------------------------------------------------------------------\n";
+    //for (var y = 0; y < height; y++) {
+    //  for (var x = 0; x < width; x++) {
+    //    hoge += String(terrace_depth_map[y][x]) + ",";
+    //  }
+    //  hoge += "\n";
+    //}
+    //hoge += "-----------------------------------------------------------------------------------------\n";
+
+
+    let tmp_map = [];
+    for (var y = 0; y < height; y++) {
+      tmp_map[y] = [];
+      for (var x = 0; x < width; x++) {
+        if(shield_depth_map[y][x] == -1) {
+          tmp_map[y][x] = terrace_depth_map[y][x] + shield_depth_map[y][x];
+        }else{
+          tmp_map[y][x] = 0;
+        }
+      }
+    }
+    for (var x = 0; x < width; x++) {
+      let mode = "zero";
+      let first_contact_number = 0;
+      for (var y = 0; y < height; y++) {
+        if(mode==="zero" && tmp_map[y][x]!==0){
+          first_contact_number = tmp_map[y][x];
+          mode = "first_contact";
+        }
+        if(mode==="first_contact" && tmp_map[y][x]!==first_contact_number){
+          first_contact_number = 0;
+          mode = "delete";
+        }
+        if(mode==="delete" && tmp_map[y][x]!==0){
+          shield_depth_map[y][x] = 0;
+        }
+        if(mode==="delete" && tmp_map[y][x]===0){
+          mode = "zero";
+        }
+      }
+    }
+    for (var y = 0; y < height; y++) {
+      tmp_map[y] = [];
+      for (var x = 0; x < width; x++) {
+        if(shield_depth_map[y][x] == 1) {
+          tmp_map[y][x] = terrace_depth_map[y][x] + shield_depth_map[y][x];
+        }else{
+          tmp_map[y][x] = 0;
+        }
+      }
+    }
+    for (var x = 0; x < width; x++) {
+      let mode = "zero";
+      let first_contact_number = 0;
+      for (var y = height-1; y >= 0; y--) {
+        if(mode==="zero" && tmp_map[y][x]!==0){
+          first_contact_number = tmp_map[y][x];
+          mode = "first_contact";
+        }
+        if(mode==="first_contact" && tmp_map[y][x]!==first_contact_number){
+          first_contact_number = 0;
+          mode = "delete";
+        }
+        if(mode==="delete" && tmp_map[y][x]!==0){
+          shield_depth_map[y][x] = 0;
+        }
+        if(mode==="delete" && tmp_map[y][x]===0){
+          mode = "zero";
+        }
+      }
+    }
+
+    //for (var y = 0; y < height; y++) {
+    //  for (var x = 0; x < width; x++) {
+    //    hoge += ("  "+shield_depth_map[y][x]).substr(-2);
+    //  }
+    //  hoge += "\n";
+    //}
+    //hoge += "-----------------------------------------------------------------------------------------\n";
+
+    for (var y = 0; y < height; y++) {
+      for (var x = 0; x < width; x++) {
+        terrace_depth_map[y][x] += shield_depth_map[y][x];
+      }
+    }
+    // Modify litte y geometry such as "1 2 2 2 1"
+    //                                    ~~~~~
+    for (var y = 0; y < height-4; y++) {
+      for (var x = 0; x < width; x++) {
+        let a = Math.abs(terrace_depth_map[y  ][x] - terrace_depth_map[y][x]);
+        let b = Math.abs(terrace_depth_map[y+1][x] - terrace_depth_map[y][x]);
+        let c = Math.abs(terrace_depth_map[y+2][x] - terrace_depth_map[y][x]);
+        let d = Math.abs(terrace_depth_map[y+3][x] - terrace_depth_map[y][x]);
+        let e = Math.abs(terrace_depth_map[y+4][x] - terrace_depth_map[y][x]);
+        if( a===0 && (b!==0 || c!==0 || d===0) && e===0 ){
+          terrace_depth_map[y  ][x] = terrace_depth_map[y][x];
+          terrace_depth_map[y+1][x] = terrace_depth_map[y][x];
+          terrace_depth_map[y+2][x] = terrace_depth_map[y][x];
+          terrace_depth_map[y+3][x] = terrace_depth_map[y][x];
+          terrace_depth_map[y+4][x] = terrace_depth_map[y][x];
+        }
+      }
+    }
+    // Modify litte x geometry such as "1 2 1"
+    //                                    ~
+    for (var y = 0; y < height; y++) {
+      for (var x = 0; x < width-1; x++) {
+        let a = Math.abs(terrace_depth_map[y][x  ] - terrace_depth_map[y][x]);
+        let b = Math.abs(terrace_depth_map[y][x+1] - terrace_depth_map[y][x]);
+        let c = Math.abs(terrace_depth_map[y][x+2] - terrace_depth_map[y][x]);
+        if( a===0 && b!==0 && c===0 ){
+          terrace_depth_map[y][x  ] = terrace_depth_map[y][x];
+          terrace_depth_map[y][x+1] = terrace_depth_map[y][x];
+          terrace_depth_map[y][x+2] = terrace_depth_map[y][x];
+        }
+      }
+    }
+    for (var y = 0; y < height-3; y++) {
+      for (var x = 0; x < width; x++) {
+        let a = terrace_depth_map[y  ][x];
+        let b = terrace_depth_map[y+1][x];
+        let c = terrace_depth_map[y+2][x];
+        let d = terrace_depth_map[y+3][x];
+        if( a!==b && b===c && c!==d) {
+          terrace_depth_map[y  ][x] = terrace_depth_map[y+1][x];
+          terrace_depth_map[y+1][x] = terrace_depth_map[y+1][x];
+          terrace_depth_map[y+2][x] = terrace_depth_map[y+1][x];
+          terrace_depth_map[y+3][x] = terrace_depth_map[y+1][x];
+        }
+      }
+    }
+    for (var y = 0; y < height-3; y++) {
+      for (var x = 0; x < width; x++) {
+        let a = terrace_depth_map[y  ][x];
+        let b = terrace_depth_map[y+1][x];
+        let c = terrace_depth_map[y+2][x];
+        if( a!==b && b!==c) {
+          terrace_depth_map[y  ][x] = terrace_depth_map[y+1][x];
+          terrace_depth_map[y+1][x] = terrace_depth_map[y+1][x];
+          terrace_depth_map[y+2][x] = terrace_depth_map[y+1][x];
+          terrace_depth_map[y+3][x] = terrace_depth_map[y+1][x];
+        }
+      }
+    }
+
+    //for (var y = 0; y < height; y++) {
+    //  for (var x = 0; x < width; x++) {
+    //    hoge += ("  "+terrace_depth_map[y][x]).substr(-2);
+    //  }
+    //  hoge += "\n";
+    //}
+    //console.log(hoge);
+
+    return terrace_depth_map;
   };
 
   function MakeCliffAndBorderMap(depth_map) {
