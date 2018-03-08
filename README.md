@@ -183,7 +183,28 @@ Y座標　：　素材内容
 
 できたマップが気に入らない場合，シード値を変更して再作成してみてください。
 
+## オブジェクトの配置制限
+ダンジョンテンプレマップのリージョン設定にてリージョンID「1」を配置すると，配置されたリージョン内に移動不可のオブジェクトを置かないようにできます。
+
+これは主にダンジョンの出入り口付近に配置し，「別のマップから移動してきたあと移動不可オブジェクトの上に乗ってしまい動けなくなってしまう」という現象を避けるために使用します（下図）。
+
+![alt text](https://github.com/kurageya0307/SemiAutoDungeon/blob/pictures/REGION.png)
+
+リージョンIDはオプションによって変更することもできます。
+
+
 ## 屋外マップ限定のオプション
+### FIELD_TYPE
+オプション<field_type: terrace>または<field_type: mix>と指定することで，
+特別な屋外マップを作成可能です。
+<field_type: terrace>では，地形が段々畑状になり北（画面上）に向かうほど高く，南（画面下）に向かうほど低い形なります。
+terraceの場合の例を下図に示します。
+![alt text](https://github.com/kurageya0307/SemiAutoDungeon/blob/pictures/TERRACE.png)
+
+<field_type: mix>では，基本を段々畑（北が高く，南が低い）とし，その上でランダムな高低差を追加します。
+mixの場合の例を下図に示します。
+![alt text](https://github.com/kurageya0307/SemiAutoDungeon/blob/pictures/MIX.png)
+
 ### MAX_DEPTH
 オプション<max_depth: 数字>を入力することで高低差の最大値を変更できます。
 
@@ -214,14 +235,13 @@ Y座標　：　素材内容
 
 TREE_DENSITYとTREE_SIZEはそれぞれ変更してみて，自分の気に入る木の生い茂り方を探してみると楽しいと思います。
 
-## オブジェクトの配置制限
-ダンジョンテンプレマップのリージョン設定にてリージョンID「1」を配置すると，配置されたリージョン内に移動不可のオブジェクトを置かないようにできます。
+## ダンジョンマップ限定のオプション
+### DUNGEON_SYMMETRY
+<dungeon_symmery: on>とするとダンジョンを左右対称にします。
+砦や塔などの人工物のダンジョンに使用することを想定しています。
+<dungeon_symmery: on>の例を下図に示します。
 
-これは主にダンジョンの出入り口付近に配置し，「別のマップから移動してきたあと移動不可オブジェクトの上に乗ってしまい動けなくなってしまう」という現象を避けるために使用します（下図）。
-
-![alt text](https://github.com/kurageya0307/SemiAutoDungeon/blob/pictures/REGION.png)
-
-リージョンIDはオプションによって変更することもできます。
+![alt text](https://github.com/kurageya0307/SemiAutoDungeon/blob/pictures/SYMMETRY.png)
 
 # ライセンス
 本プラグインはMITライセンスです。
