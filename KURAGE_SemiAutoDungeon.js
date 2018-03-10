@@ -1247,7 +1247,7 @@ PERFORMANCE OF THIS SOFTWARE.
       //console.log(base_data_map);
       //console.log(target_data_map);
       let option = readNoteTag(target_data_map.note);
-      if(option!==undefined){
+      if(option["SEED"]!==undefined){
         $.random = new Random(option["SEED"]);
       }else{
         $.random = new Random($.dungeon_and_parent_pair[0][0]);
@@ -2630,7 +2630,7 @@ PERFORMANCE OF THIS SOFTWARE.
  
       let option = readNoteTag(target_data_map.note, "Field");
       // Make random with map id as seed.
-      if(option!==undefined){
+      if(option["SEED"]!==undefined){
         $.random = new Random(option["SEED"]);
         noise.seed(option["SEED"]);
       }else{
