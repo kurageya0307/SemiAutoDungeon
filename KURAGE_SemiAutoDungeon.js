@@ -21,6 +21,10 @@
  * 0を指定することはできません。
  * @default 4, 5, 6
  *
+ * @param コンソール出力モード（ON/OFF)
+ * @desc ONにした場合，生成したマップのJSONデータをコンソール出力します。
+ * @default OFF
+ *
  * @help 
  *
  *-----------------------------------------------------------------------------
@@ -214,6 +218,13 @@ KURAGE.SemiAutoDungeon = {};
     $.field_parent_ids = [];
   }
 //console.log($.field_parent_ids)
+  var tmp = $.params['コンソール出力モード'];
+  if(tmp === "ON"){
+    $.console_out = true;
+  } else {
+    $.console_out = false;
+  }
+  $.console_stopped = false;
   
   $.random = null;
   $.dungeon_and_parent_pair = [];
@@ -978,6 +989,7 @@ PERFORMANCE OF THIS SOFTWARE.
                 fs.mkdirSync(dirPath);
             }
             fs.writeFileSync(filePath, data);
+
         };
 
         StorageManager.localDataFileDirectoryPath = function() {
@@ -1181,15 +1193,26 @@ PERFORMANCE OF THIS SOFTWARE.
     if(this.load_map_infos){
       this.updateForMapInfoDataLoad();
     } else if($.dungeon_and_parent_pair.length > 0){
-      this.updateForCreateDungeon();
-      //console.log($.dungeon_and_parent_pair[0]);
-      //
+      if($.console_out && $.console_stopped) {
+        if( Input.isPressed("ok") ){
+          this.updateForCreateDungeon();
+        }
+      } else {
+        this.updateForCreateDungeon();
+        //console.log($.dungeon_and_parent_pair[0]);
+      }
     } else if($.field_and_parent_pair.length > 0){
-      this.updateForCreateField();
-      ///console.log($.field_and_parent_pair[0]);
+      if($.console_out && $.console_stopped) {
+        if( Input.isPressed("ok") ){
+          this.updateForCreateField();
+        }
+      } else {
+        this.updateForCreateField();
+        ///console.log($.field_and_parent_pair[0]);
+      }
     } else {
       _Game_Map_update.call(this, sceneActive);
-    }  
+    }
   };
   
   var map_data = [];
@@ -1275,13 +1298,20 @@ PERFORMANCE OF THIS SOFTWARE.
  
       CreateFloorWallAndCeil(map2d, grass_map, walkable_object_map, unwalkable_1x1_object_map, unwalkable_1x2_object_map, wallpaper_1x1_map, wallpaper_1x2_map, shadow_map, option);
  
-      var output_file_name = '_Map%1.json'.format($.dungeon_and_parent_pair[0][0].padZero(3));
-      StorageManager.saveToLocalDataFile(output_file_name, target_data_map) 
+      if($.console_out===true) {
+        ConsoleOut(target_data_map);
+      } else {
+        var output_file_name = '_Map%1.json'.format($.dungeon_and_parent_pair[0][0].padZero(3));
+        StorageManager.saveToLocalDataFile(output_file_name, target_data_map) 
+      }
  
       console.log('Map%1 OK!'.format($.dungeon_and_parent_pair[0][0].padZero(3)) );
       $.dungeon_and_parent_pair.shift();
       if($.dungeon_and_parent_pair.length <= 0) {
-        console.log("All dungeons are created!!");
+        console.log("\n\nAll dungeons are created!!\n\n");
+      } else if($.console_out===true) {
+        console.log('Press ENTER to make next Map.');
+        $.console_stopped = true;
       }
       $gameTemp.loadAtOnce = true;
     }
@@ -2666,13 +2696,20 @@ PERFORMANCE OF THIS SOFTWARE.
       //
       ApplyTiles(cliff_and_border_map, grass_map, walkable_object_map, unwalkable_1x1_object_map, unwalkable_1x2_object_map, wallpaper_1x1_map, wallpaper_1x2_map, tree_map, shadow_map, option);
  
-      var output_file_name = '_Map%1.json'.format($.field_and_parent_pair[0][0].padZero(3));
-      StorageManager.saveToLocalDataFile(output_file_name, target_data_map) 
+      if($.console_out===true) {
+        ConsoleOut(target_data_map);
+      } else {
+        var output_file_name = '_Map%1.json'.format($.field_and_parent_pair[0][0].padZero(3));
+        StorageManager.saveToLocalDataFile(output_file_name, target_data_map) 
+      }
  
       console.log('Map%1 OK!'.format($.field_and_parent_pair[0][0].padZero(3)) );
       $.field_and_parent_pair.shift();
       if($.field_and_parent_pair.length <= 0) {
         console.log("All fields are created!!");
+      } else if($.console_out===true) {
+        console.log('Press ENTER to make next Map.');
+        $.console_stopped = true;
       }
       $gameTemp.loadAtOnce = true;
     }
@@ -3409,4 +3446,9 @@ PERFORMANCE OF THIS SOFTWARE.
     };
   };
 
+  function ConsoleOut(json) {
+    var data = JSON.stringify(json);
+    console.clear();
+    console.log(data);
+  }
 })(KURAGE.SemiAutoDungeon);
