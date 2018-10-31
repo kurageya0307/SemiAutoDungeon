@@ -2,8 +2,8 @@
 // KURAGE_SemiAutoDungeon.js
 // Author    : KURAGE
 // Date      : 2018/01/11
-// Update    : 2018/03/08
-// Version   : v1.2.2
+// Update    : 2018/10/31
+// Version   : v1.2.0
 //=============================================================================
 
 //=============================================================================
@@ -190,6 +190,8 @@
  * 
  * v1.0.0 - 2018/01/11 : 新規作成
  * v1.1.0 - 2018/02/18 : 屋外マップの作成機能の追加
+ * v1.2.0 - 2018/10/07 : コンソール出力の追加
+ * v1.2.1 - 2018/10/31 : 屋外マップの仕様変更
  * 
  *-----------------------------------------------------------------------------
 */
@@ -3345,6 +3347,13 @@ PERFORMANCE OF THIS SOFTWARE.
   };
 
   function ApplyTiles(cliff_and_border_map, grass_map, walkable_object_map, unwalkable_1x1_object_map, unwalkable_1x2_object_map, wallpaper_1x1_map, wallpaper_1x2_map, tree_map, shadow_map, option){
+
+    for(let y=0; y<target_data_map.height; y++) {
+      for(let x=0; x<target_data_map.width; x++) {
+        $.applySupponCTI([ 'add', 'abc', '0', '0', '1', '1', String(x), String(y) ], base_data_map );
+      }
+    }
+
     for(let y=0; y<cliff_and_border_map.length; y++){
       for(let x=0; x<cliff_and_border_map[0].length; x++){
         if(cliff_and_border_map[y][x]<0) {
@@ -3444,6 +3453,7 @@ PERFORMANCE OF THIS SOFTWARE.
         }
       }
     };
+
   };
 
   function ConsoleOut(json) {
