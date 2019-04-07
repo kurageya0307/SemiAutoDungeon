@@ -995,11 +995,9 @@ PERFORMANCE OF THIS SOFTWARE.
         };
 
         StorageManager.localDataFileDirectoryPath = function() {
-            var path = window.location.pathname.replace(/(\/www|)\/[^\/]*$/, '/data/');
-            if (path.match(/^\/([A-Z]\:)/)) {
-                path = path.slice(1);
-            }
-            return decodeURIComponent(path);
+            var path = require('path');
+            var base = path.dirname(process.mainModule.filename);
+            return path.join(base, 'data/');
         };
  //
  // Functions from "GraphicalDesignMode.js". Thank you, Mr./Ms. Triacontane
